@@ -1,0 +1,153 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>E-commerce</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('select');
+        M.FormSelect.init(elems);
+
+        var sidenavElems = document.querySelectorAll('.sidenav');
+        M.Sidenav.init(sidenavElems);
+
+        var cartElem = document.querySelector('.cart-icon');
+        var cartContent = document.querySelector('.cart-content');
+
+        cartElem.addEventListener('click', function() {
+            cartContent.classList.toggle('hide');
+        });
+    });
+</script>
+
+
+<link rel="stylesheet" href="store.css">
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<nav>
+    <div class="nav-wrapper indigo darken-1">
+        <a href="#" class="brand-logo">E-commerce</a>
+        <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+        <ul class="right hide-on-med-and-down">
+            <li><a href="/store2">Home</a></li>
+            <li><a href="/">Prodotti</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Mobile Navigation -->
+<ul class="sidenav" id="mobile-demo">
+    <li><a href="/store2">Home</a></li>
+    <li><a href="/">Prodotti</a></li>
+</ul>
+<!-- Cart Icon -->
+<div class="cart-icon">
+    <i class="material-icons">shopping_cart</i>
+</div>
+<!-- Cart Content -->
+<div class="cart-content hide">
+    <p>Il tuo Carrello</p>
+    <table>
+        <thead>
+          <tr>
+              <th>Titolo</th>
+              <th>Prezzo</th>
+              <th>Pezzi</th>
+              <th>Totale</th>
+          </tr>
+        </thead>
+
+       
+<tbody>
+  <tr th:each="libri : ${carrello}">
+  <form action = "/ordina" method = "post">
+  <td>
+      <input type="hidden" name="idP" th:value="${libri.prodotto.getIdP}">
+    </td>
+    <td th:text="${libri.prodotto.titolo}"></td>
+    <td>€<span th:text="${libri.prodotto.prezzo}"></span></td>
+    <td th:text="${libri.quantita}"></td>
+    <td th:text="${libri.quantita}*${libri.prodotto.prezzo}"></td>
+  </tr>
+</tbody>
+      </table>
+ <p id="totP">Totale Carrello= <span th:text="${totP} "></span></p>
+       <p>Procedi all'ordine</p>
+
+       
+      <input type = "submit"  value = "Procedi all'ordine">
+      </form><br>
+      <form action = "/clear" method="post">
+      <input type = "submit"  value = "Svuota carrello">
+      </form>
+</div>
+
+<main>
+    <div class="container">
+    <h2 class="center-align">Store</h2>
+    <label for="CategoriaId">Categoria</label>
+    <form action="/filterByCategoria" method="get">
+    <select name="genere" id="CategoriaId">
+        <option value="Tutti" th:selected="${genere == 'Tutti'}">Seleziona genere</option>
+        <option th:each="categoria : ${listaG}" 
+                th:value="${categoria}" 
+                th:text="${categoria}" 
+                th:selected="${categoria == genere}">
+        </option>
+    </select>
+
+</form>
+
+
+        <div class="row">
+            <div class="col s4" th:each="libri : ${listaP}">
+                <div class="card">
+                    <div class="card-image waves-effect waves-block waves-light">
+                        <img class="activator custom" th:src="${libri.url}" alt="Immagine prodotto">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4" th:text="${libri.titolo}"><i class="material-icons right">more_vert</i></span>
+                        <form action="/add" method="post">
+                            <div class="input-field">
+                                <input type="number" name="quantitaR" value="0" min="1" th:max="${libri.quantita}" class="validate">
+                                <input type="hidden" name="idPCarr" th:value="${libri.getIdP()}">
+                            </div>
+                            <button class="btn indigo darken-1" type="submit">Aggiungi</button>
+                        </form>
+                    </div>
+                    <div class="card-reveal">
+                        <span class="card-title grey-text text-darken-4" th:text="${libri.autore}"><i class="material-icons right">close</i></span>
+                        <p>Prezzo: €<span th:text="${libri.prezzo}"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="page-footer indigo darken-1">
+    <div class="center-align">© 2024 E-commerce</div>
+</footer>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var categoriaSelect = document.getElementById('CategoriaId');
+
+    categoriaSelect.addEventListener('change', function() {
+        var selectedValue = categoriaSelect.value;
+        if (selectedValue) {
+            console.log(selectedValue);
+            window.location.href = '/filterByCategoria?genere=' + encodeURIComponent(selectedValue);
+        }
+    });
+});
+
+</script>
+</body>
+</html>

@@ -1,0 +1,204 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>E-commerce</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/css/materialize.min.css">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/materialize/1.0.0/js/materialize.min.js"></script>
+<link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        var elems = document.querySelectorAll('select');
+        M.FormSelect.init(elems);
+
+        var sidenavElems = document.querySelectorAll('.sidenav');
+        M.Sidenav.init(sidenavElems);
+
+        var cartElem = document.querySelector('.cart-icon');
+        var cartContent = document.querySelector('.cart-content');
+
+        cartElem.addEventListener('click', function() {
+            cartContent.classList.toggle('hide');
+        });
+    });
+</script>
+
+
+<link rel="stylesheet" href="store.css">
+</head>
+<body>
+
+<!-- Navigation Bar -->
+<nav>
+    <div class="nav-wrapper indigo darken-1">
+        <a href="#" class="brand-logo">E-commerce</a>
+        <a href="#" data-target="mobile-demo" class="sidenav-trigger"><i class="material-icons">menu</i></a>
+        <ul class="right hide-on-med-and-down">
+            <li><a href="/store2">Home</a></li>
+            <li><a href="/">Prodotti</a></li>
+        </ul>
+    </div>
+</nav>
+
+<!-- Mobile Navigation -->
+<ul class="sidenav" id="mobile-demo">
+    <li><a href="/store2">Home</a></li>
+    <li><a href="/">Prodotti</a></li>
+</ul>
+<!-- Cart Icon -->
+<div class="cart-icon">
+    <i class="material-icons">shopping_cart</i>
+</div>
+<!-- Cart Content -->
+<div class="cart-content hide">
+    <p>Il tuo Carrello</p>
+    <table>
+        <thead>
+          <tr>
+              <th>Titolo</th>
+              <th>Prezzo</th>
+              <th>Pezzi</th>
+              <th>Totale</th>
+          </tr>
+        </thead>
+
+       
+<tbody>
+  <tr th:each="libri : ${carrello}">
+  <form action = "/ordina" method = "post">
+  <td>
+      <input type="hidden" name="idP" th:value="${libri.prodotto.getIdP}">
+    </td>
+    <td th:text="${libri.prodotto.titolo}"></td>
+    <td>€<span th:text="${libri.prodotto.prezzo}"></span></td>
+    <td th:text="${libri.quantita}"></td>
+    <td th:text="${libri.quantita}*${libri.prodotto.prezzo}"></td>
+  </tr>
+</tbody>
+      </table>
+ <p id="totP">Totale Carrello= <span th:text="${totP} "></span></p>
+       <p>Procedi all'ordine</p>
+
+       
+      <input type = "submit"  value = "Procedi all'ordine">
+      </form><br>
+      <form action = "/clear" method="post">
+      <input type = "submit"  value = "Svuota carrello">
+      </form>
+</div>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    const selectElement = document.getElementById('mySelect');
+    const sections = document.querySelectorAll('.section');
+
+    selectElement.addEventListener('change', function () {
+        // Nasconde tutte le sezioni
+        sections.forEach(section => {
+            section.style.display = 'none';
+        });
+
+        // Mostra la sezione selezionata, se valida
+        const selectedValue = selectElement.value;
+        if (selectedValue !== 'none') {
+            const selectedSection = document.getElementById(selectedValue);
+            if (selectedSection) {
+                selectedSection.style.display = 'block';
+            }
+        }
+    });
+});
+
+</script>
+<main>
+
+    <div class="container">
+    <h2 class="center-align">Store</h2>
+     <form action="filterByChoise" method="get">
+     
+   <label for="CercaPer">Cerca per</label>
+   <div th:if="${errorMessage != null}" class="red-text center-align">
+        <p th:text="${errorMessage}"></p>
+    </div>
+    <select name ="mySelect" id="mySelect" onclick="myFunction()">
+  <option value="none">Seleziona un'operazione</option>
+  
+  <option value="aut">Autore</option>
+  <option value="tit">Titolo</option>
+  <option value="genere">Genere</option>
+</select>
+
+   
+  
+    <div id="aut" class="section" style="display: none;">
+        <label for="cercaByAutore">Cerca per Autore:</label>
+        <input type="text" id="cercaByAutore" name="autore">
+        <input type="submit" value="Cerca">
+    </div>
+    <div id="tit" class="section" style="display: none;">
+        <label for="cercaByTitolo">Cerca per Titolo:</label>
+        <input type="text" id="cercaByTitolo" name="titolo">
+        <input type="submit" value="Cerca">
+    </div>
+    <div id="genere" class="section" style="display:none;">
+       
+    <select name="genere" id="CategoriaId">
+        <option value="Tutti" th:selected="${genere == 'Tutti'}">Seleziona genere</option>
+        <option th:each="categoria : ${listaG}" 
+                th:value="${categoria}" 
+                th:text="${categoria}" 
+                th:selected="${categoria == genere}">
+        </option>
+    </select>
+
+
+    </div>
+</form>
+     
+
+        <div class="row">
+            <div class="col s4" th:each="libri : ${listaP}">
+                <div class="card">
+                    <div class="card-image waves-effect waves-block waves-light">
+                        <img class="activator custom" th:src="${libri.url}" alt="Immagine prodotto">
+                    </div>
+                    <div class="card-content">
+                        <span class="card-title activator grey-text text-darken-4" th:text="${libri.titolo}"><i class="material-icons right">more_vert</i></span>
+                        <form action="/add" method="post">
+                            <div class="input-field">
+                                <input type="number" name="quantitaR" value="0" min="1" th:max="${libri.quantita}" class="validate">
+                                <input type="hidden" name="idPCarr" th:value="${libri.getIdP()}">
+                            </div>
+                            <button class="btn indigo darken-1" type="submit">Aggiungi</button>
+                        </form>
+                    </div>
+                    <div class="card-reveal">
+                        <span class="card-title grey-text text-darken-4" th:text="${libri.autore}"><i class="material-icons right">close</i></span>
+                        <p>Prezzo: €<span th:text="${libri.prezzo}"></span></p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- Footer -->
+<footer class="page-footer indigo darken-1">
+    <div class="center-align">© 2024 E-commerce</div>
+</footer>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    var categoriaSelect = document.getElementById('CategoriaId');
+
+    categoriaSelect.addEventListener('change', function() {
+        var selectedValue = categoriaSelect.value;
+        if (selectedValue) {
+            console.log(selectedValue);
+            window.location.href = '/filterByCategoria?genere=' + encodeURIComponent(selectedValue);
+        }
+    });
+});
+
+</script>
+</body>
+</html>
